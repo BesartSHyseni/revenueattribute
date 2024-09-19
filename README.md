@@ -1,2 +1,49 @@
 # revenueattribute
 Revenue Attribute
+# Import libraries
+import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report, accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Sample Data
+data = {'Review': ["The product is great and works perfectly!",
+                   "Very disappointed. The quality is terrible.",
+                   "Fantastic! I love it.",
+                   "It broke after two days. Very poor quality.",
+                   "Excellent product! Would definitely recommend.",
+                   "Not worth the money. Bad experience."],
+        'Sentiment': ['Positive', 'Negative', 'Positive', 'Negative', 'Positive', 'Negative']}
+
+df = pd.DataFrame(data)
+
+# Text Vectorization
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(df['Review'])
+
+# Convert Sentiment to binary values
+df['Sentiment'] = df['Sentiment'].map({'Positive': 1, 'Negative': 0})
+
+# Split data
+X_train, X_test, y_train, y_test = train_test_split(X, df['Sentiment'], test_size=0.2, random_state=42)
+
+# Train model
+model = LogisticRegression()
+model.fit(X_train, y_train)
+
+# Predict and Evaluate
+y_pred = model.predict(X_test)
+print(classification_report(y_test, y_pred))
+print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+
+# Plot confusion matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Negative', 'Positive'], yticklabels=['Negative', 'Positive'])
+plt.ylabel('True Label')
+plt.xlabel('Predicted Label')
+plt.title('Confusion Matrix - Logistic Regression')
+plt.show()
